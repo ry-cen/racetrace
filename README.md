@@ -51,8 +51,8 @@ Target design (planned except where noted in [Status](#status)); details in [ARC
 | Outcome categories and exit codes (`internal/outcome`) | Implemented | Unknown outcome maps to 3, never a pass |
 | Python SDK `checkpoint()` | Implemented (local only) | No-op when disabled; Week 1 test-only trigger `RACETRACE_LOCAL_CRASH_AT`; with `RACETRACE_CONTROLLER_URL` set it raises `ControllerUnavailableError` |
 | Reference app `examples/redis-worker` (unsafe and safe variants) | Implemented | Redis Streams worker, PostgreSQL effects, pytest integration tests |
-| `Makefile`, uv workspace, ruff, CI workflow | Implemented | CI workflow has not yet run on GitHub |
-| Reference app Docker image and `compose.yaml` | Written, not verified locally | No Docker in the dev sandbox; CI is expected to validate |
+| `Makefile`, uv workspace, ruff, CI workflow | Implemented | CI runs Go, Python integration, and Compose jobs |
+| Reference app Docker image and `compose.yaml` | Implemented | CI validates the config and builds the image; the Compose demo has not been run end to end |
 | Checkpoint HTTP protocol, SDK-to-controller calls | Planned (Week 2) | [ADR 0001](docs/adr/0001-checkpoint-protocol.md) |
 | Controller, Compose orchestration, `kill-worker` fault | Planned (Week 3) | [ADR 0002](docs/adr/0002-local-first-docker-compose.md) |
 | YAML scenarios, invariants, reports, `racetrace run` and `report` | Planned (Week 4) | v0.1 target |

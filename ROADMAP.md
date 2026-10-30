@@ -1,6 +1,6 @@
 # Roadmap
 
-Eight-week plan. Effort figures are planning estimates in person-days for one developer, not measurements, and will be revised. A checkbox is ticked only after its acceptance criterion has been verified. Week 1 items verified locally on 2026-10-30 are ticked; the Compose files and CI remain unverified because the dev sandbox has no Docker and CI has not run yet.
+Eight-week plan. Effort figures are planning estimates in person-days for one developer, not measurements, and will be revised. A checkbox is ticked only after its acceptance criterion has been verified. Week 1 was verified on 2026-10-30, locally and in CI on PR #2. The Compose demo itself has not been run end to end yet (tracked in docs/backlog.md).
 
 The detailed task list is in [docs/backlog.md](docs/backlog.md). Architecture is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -8,7 +8,7 @@ Non-goals throughout: deterministic scheduling, exact replay, exactly-once claim
 
 ## Week 1: Foundation and reference system
 
-Status: core acceptance verified locally; Compose and CI verification pending. Effort estimate: 5 person-days.
+Status: complete (acceptance verified locally and in CI). Effort estimate: 5 person-days.
 
 Deliverables:
 
@@ -18,8 +18,8 @@ Deliverables:
 - [x] Python SDK `checkpoint()`: no-op when disabled; local test-only crash trigger; explicit `ControllerUnavailableError`
 - [x] Reference app `examples/redis-worker`: unsafe and safe variants, migrations, producer, worker
 - [x] Integration tests for crash at `job.received`, `job.effect_written`, `job.db_committed`, `job.acknowledged`
-- [ ] Dockerfile and `compose.yaml` for the reference app
-- [ ] GitHub Actions CI (Go, Python with service containers, Compose validate and build)
+- [x] Dockerfile and `compose.yaml` for the reference app (config validates and image builds in CI; Compose demo not yet run end to end)
+- [x] GitHub Actions CI (Go, Python with service containers, Compose validate and build)
 - [x] Documentation set: README, ARCHITECTURE, CONTRIBUTING, AGENTS, CONTEXT, ADRs, LICENSE
 
 Dependencies: none.
@@ -30,7 +30,7 @@ Acceptance criteria:
 - [x] `racetrace run x.yaml` exits 2 with a "not implemented yet" message
 - [x] Unsafe variant: crash at `job.db_committed` then recovery yields 2 ledger entries for one job; safe yields 2 executions and 1 ledger entry
 - [x] Crash at `job.received` or `job.effect_written` yields 1 effect after recovery in both variants
-- [ ] CI is green on GitHub, including Compose build (not verified locally; no Docker in the dev sandbox)
+- [x] CI is green on GitHub, including Compose build ([run](https://github.com/ry-cen/racetrace/actions/runs/40989121412))
 
 Risks: XAUTOCLAIM timing flakiness in tests; Compose files unverified until CI runs.
 
@@ -194,4 +194,4 @@ OpenTelemetry integration, React/TypeScript visualization, additional faults (pa
 | SDK blocking inside async frameworks | Decide in Week 2: document, or provide an async-safe path |
 | Python SIGKILL versus container kill semantics | Prefer container kill; self-kill only as fallback; test both |
 | Startup cost per run during exploration | Reuse project and reset state (not designed yet) |
-| Compose files unverified locally | CI validates and builds; treat as unverified until CI is green |
+| Compose demo not run end to end | CI validates the config and builds the image; running the demo under Compose is a backlog item |

@@ -143,5 +143,5 @@ Python 3.12. Every run passed, and the table above matches what was observed:
 - after the review fixes: three consecutive runs;
 - the final 27-test suite: three runs, one with `RACETRACE_REQUIRE_INTEGRATION=1`.
 
-The Dockerfile and `compose.yaml` have not been exercised locally yet (no Docker
-in the development environment). CI builds them.
+CI validates `compose.yaml` and builds the image. The crash demo has not yet been
+run end to end under Compose.

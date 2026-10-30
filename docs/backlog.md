@@ -5,7 +5,7 @@ Priorities: P0 blocks the week's goal; P1 needed for the milestone; P2 improves 
 ## Week 1 (in progress)
 
 - [x] P0: Verify `make lint` and `make test` pass against live Redis and PostgreSQL. Test: both exit 0 with `RACETRACE_REQUIRE_INTEGRATION=1`. (verified locally with RACETRACE_REQUIRE_INTEGRATION=1: 27 passed.)
-- [ ] P0: Confirm the CI workflow passes on GitHub. Test: green run on the PR.
+- [x] P0: Confirm the CI workflow passes on GitHub. Test: green run on the PR. ([PR #2 run](https://github.com/ry-cen/racetrace/actions/runs/40989121412))
 - [ ] P1: Verify `examples/redis-worker/compose.yaml` and Dockerfile build and the demo works in Compose. Test: `make up` then the README demo yields the documented counts.
 - [ ] P1: Reconcile docs commands with the Makefile and CLI. Test: each documented command runs.
 
