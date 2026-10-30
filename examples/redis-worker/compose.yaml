@@ -1,0 +1,72 @@
+# Reference application: Redis Streams + PostgreSQL + Python workers.
+#
+#   docker compose -f examples/redis-worker/compose.yaml up -d --wait redis postgres
+#   REFWORKER_VARIANT=unsafe docker compose -f examples/redis-worker/compose.yaml run --rm migrate
+#
+# See examples/redis-worker/README.md for the crash demo. Ports are published
+# on 127.0.0.1 only so local tests and psql/redis-cli can inspect state.
+name: racetrace-redis-worker
+
+x-worker-env: &worker-env
+  REDIS_URL: redis://redis:6379/0
+  DATABASE_URL: postgresql://racetrace:racetrace@postgres:5432/racetrace
+  REFWORKER_VARIANT: ${REFWORKER_VARIANT:-unsafe}
+  REFWORKER_DB_SCHEMA: ${REFWORKER_DB_SCHEMA:-public}
+
+services:
+  redis:
+    image: redis:7.4
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["127.0.0.1:6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: racetrace
+      POSTGRES_PASSWORD: racetrace
+      POSTGRES_DB: racetrace
+    ports: ["127.0.0.1:5432:5432"]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "racetrace"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  migrate:
+    build: &worker-build
+      context: ../..
+      dockerfile: examples/redis-worker/Dockerfile
+    image: racetrace/refworker:dev
+    command: ["migrate"]
+    environment: *worker-env
+    depends_on:
+      postgres: { condition: service_healthy }
+    profiles: [tools]
+
+  producer:
+    build: *worker-build
+    image: racetrace/refworker:dev
+    command: ["produce", "--count", "1"]
+    environment: *worker-env
+    depends_on:
+      redis: { condition: service_healthy }
+    profiles: [tools]
+
+  worker:
+    build: *worker-build
+    image: racetrace/refworker:dev
+    command: ["work"]
+    environment:
+      <<: *worker-env
+      # Week 1 fault trigger: set to a checkpoint name (e.g. job.db_committed)
+      # to SIGKILL the worker there. Empty means disabled.
+      RACETRACE_LOCAL_CRASH_AT: ${RACETRACE_LOCAL_CRASH_AT:-}
+      REFWORKER_MIN_IDLE_MS: ${REFWORKER_MIN_IDLE_MS:-5000}
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
