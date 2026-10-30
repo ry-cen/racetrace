@@ -1,0 +1,18 @@
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Go
+/bin/
+
+# Local agent scratch space
+.claude/context/
+.claude/worktrees/
+
+# RaceTrace run artifacts
+.racetrace/

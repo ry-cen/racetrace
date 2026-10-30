@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: make lint-go
+      - run: make test-go
+      - run: make build
+
+  python:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7.4
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 2s --health-timeout 2s --health-retries 15
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: racetrace
+          POSTGRES_PASSWORD: racetrace
+          POSTGRES_DB: racetrace
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U racetrace" --health-interval 2s --health-timeout 2s --health-retries 15
+    env:
+      RACETRACE_TEST_REDIS_URL: redis://127.0.0.1:6379/0
+      RACETRACE_TEST_DATABASE_URL: postgresql://racetrace:racetrace@127.0.0.1:5432/racetrace
+      # Fail instead of skipping when the services are configured but missing.
+      RACETRACE_REQUIRE_INTEGRATION: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: make lint-python
+      - run: make test-python
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose file
+        run: docker compose -f examples/redis-worker/compose.yaml config --quiet
+      - name: Build worker image
+        run: docker compose -f examples/redis-worker/compose.yaml build worker

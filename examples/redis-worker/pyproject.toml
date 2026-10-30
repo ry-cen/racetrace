@@ -1,0 +1,10 @@
+[project]
+name = "refworker"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["racetrace", "redis>=5", "psycopg[binary]>=3"]
+[tool.uv.sources]
+racetrace = { workspace = true }
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
